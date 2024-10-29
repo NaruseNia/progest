@@ -1,5 +1,5 @@
 CARGO = cargo
-NPM = pnpm
+NPM = bun
 
 cli-dev:
 	cd ./cli && $(CARGO) run
@@ -11,10 +11,10 @@ app-install:
 	cd ./app && $(NPM) install
 
 app-dev: app-install
-	cd ./app && $(CARGO) tauri dev
+	cd ./app && $(NPM) tauri dev
 
 app-build: app-install
-	cd ./app && $(CARGO) tauri build
+	cd ./app && $(NPM) tauri build
 
 all: cli-build app-build
 
