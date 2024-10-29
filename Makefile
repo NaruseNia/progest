@@ -2,7 +2,7 @@ CARGO = cargo
 NPM = bun
 
 cli-dev:
-	cd ./cli && $(CARGO) run
+	cd ./cli && $(CARGO) run -- $(ARGS)
 
 cli-build:
 	cd ./cli && $(CARGO) build --release
