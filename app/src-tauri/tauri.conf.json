@@ -1,22 +1,15 @@
 {
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "app",
+  "identifier": "one.progest.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:3000",
     "beforeBuildCommand": "pnpm build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist"
+    "frontendDist": "../.output/public"
   },
-  "package": {
-    "productName": "progest",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      }
-    },
+  "plugins": {},
+  "app": {
     "windows": [
       {
         "title": "app",
@@ -27,17 +20,21 @@
     "security": {
       "csp": null
     },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "one.progest.app",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
-    }
+    "withGlobalTauri": false
+  },
+  "bundle": {
+    "createUpdaterArtifacts": false,
+    "macOS": {
+      "signingIdentity": "-"
+    },
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
   }
 }
