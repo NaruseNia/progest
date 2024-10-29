@@ -1,11 +1,11 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-  "productName": "app",
+  "productName": "progest",
   "identifier": "one.progest.app",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "bun dev",
     "devUrl": "http://localhost:3000",
-    "beforeBuildCommand": "pnpm build",
+    "beforeBuildCommand": "bun build",
     "frontendDist": "../.output/public"
   },
   "plugins": {},
