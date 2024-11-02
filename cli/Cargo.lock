@@ -348,11 +348,16 @@ dependencies = [
  "bson",
  "clap",
  "indextree",
+ "progetto",
  "serde",
  "serde_indextree",
  "serde_json",
  "walkdir",
 ]
+
+[[package]]
+name = "progetto"
+version = "0.1.0"
 
 [[package]]
 name = "quote"
