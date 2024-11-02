@@ -5,10 +5,4 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.20", features = ["derive"] }
-serde = "1.0.214"
-serde_json = "1.0.132"
-bson = "2.13.0"
-indextree = "4.7.3"
-serde_indextree = "0.2.0"
-walkdir = "2.5.0"
 progetto = { path = "../lib" }
