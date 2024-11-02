@@ -23,6 +23,8 @@ Progest is a project manager which focuses on personal projects.
 
 `cli/` - Contains the CLI code. Uses Rust.
 
+`lib/` - Contains the shared code between the CLI and the app.
+
 ## Development
 
 For development, you can run the following commands:
