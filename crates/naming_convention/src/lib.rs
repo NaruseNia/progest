@@ -4,7 +4,7 @@ use regex::Regex;
 ///
 /// # Examples
 /// ```
-/// use naming_rule::tokenize;
+/// use naming_convention::tokenize;
 ///
 /// let tokens = tokenize("thisIsHelloWorld-Hello_World Hello world");
 /// assert_eq!(tokens, vec!["this", "Is", "Hello", "World", "Hello", "World", "Hello", "world"]);
@@ -26,7 +26,7 @@ pub mod convert {
     ///
     /// # Examples
     /// ```
-    /// use naming_rule::convert::to_pascal_case;
+    /// use naming_convention::convert::to_pascal_case;
     ///
     /// let pascal = to_pascal_case("pascalCase");
     /// assert_eq!(pascal, "PascalCase");
@@ -49,7 +49,7 @@ pub mod convert {
     ///
     /// # Examples
     /// ```
-    /// use naming_rule::convert::to_camel_case;
+    /// use naming_convention::convert::to_camel_case;
     ///
     /// let camel = to_camel_case("camel_case");
     /// assert_eq!(camel, "camelCase");
@@ -81,7 +81,7 @@ pub mod convert {
     ///
     /// # Examples
     /// ```
-    /// use naming_rule::convert::to_snake_case;
+    /// use naming_convention::convert::to_snake_case;
     ///
     /// let snake = to_snake_case("snakeCase");
     /// assert_eq!(snake, "snake_case");
@@ -98,7 +98,7 @@ pub mod convert {
     ///
     /// # Examples
     /// ```
-    /// use naming_rule::convert::to_upper_snake_case;
+    /// use naming_convention::convert::to_upper_snake_case;
     ///
     /// let upper_snake = to_upper_snake_case("upperSnakeCase");
     /// assert_eq!(upper_snake, "UPPER_SNAKE_CASE");
@@ -115,7 +115,7 @@ pub mod convert {
     ///
     /// # Examples
     /// ```
-    /// use naming_rule::convert::to_kebab_case;
+    /// use naming_convention::convert::to_kebab_case;
     ///
     /// let kebab = to_kebab_case("kebabCase");
     /// assert_eq!(kebab, "kebab-case");
