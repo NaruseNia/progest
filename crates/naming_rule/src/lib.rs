@@ -10,7 +10,7 @@ use regex::Regex;
 /// assert_eq!(tokens, vec!["this", "Is", "Hello", "World", "Hello", "World", "Hello", "world"]);
 /// ```
 pub fn tokenize(input: &str) -> Vec<String> {
-    let re = Regex::new(r"([A-Z][a-z]*)|([a-z]+)").unwrap();
+    let re = Regex::new(r"([A-Z]{2,}|[A-Z][a-z]*|[a-z]+)").unwrap();
     let parts: Vec<String> = re
         .find_iter(input)
         .map(|m| m.as_str().to_string())
@@ -35,7 +35,8 @@ pub mod convert {
         tokenize(s)
             .iter()
             .map(|word| {
-                let mut chars = word.chars();
+                let word_lower = word.to_lowercase();
+                let mut chars = word_lower.chars();
                 match chars.next() {
                     None => String::new(),
                     Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
@@ -62,14 +63,15 @@ pub mod convert {
             .iter()
             .enumerate()
             .map(|(i, word)| {
-                if i == 0 {
-                    word.to_lowercase()
-                } else {
-                    let mut chars = word.chars();
+                let word_lower = word.to_lowercase();
+                if i != 0 {
+                    let mut chars = word_lower.chars();
                     match chars.next() {
                         None => String::new(),
                         Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
                     }
+                } else {
+                    word_lower
                 }
             })
             .collect()
@@ -88,6 +90,23 @@ pub mod convert {
         tokenize(s)
             .iter()
             .map(|word| word.to_lowercase())
+            .collect::<Vec<String>>()
+            .join("_")
+    }
+
+    /// Convert the input string to UPPER_SNAKE_CASE.
+    ///
+    /// # Examples
+    /// ```
+    /// use naming_rule::convert::to_upper_snake_case;
+    ///
+    /// let upper_snake = to_upper_snake_case("upperSnakeCase");
+    /// assert_eq!(upper_snake, "UPPER_SNAKE_CASE");
+    /// ```
+    pub fn to_upper_snake_case(s: &str) -> String {
+        tokenize(s)
+            .iter()
+            .map(|word| word.to_uppercase())
             .collect::<Vec<String>>()
             .join("_")
     }
@@ -116,6 +135,11 @@ mod tests {
 
     // ==== snake_case ==== //
     #[test]
+    fn snake_to_upper_snake() {
+        assert_eq!(convert::to_upper_snake_case("snake_case"), "SNAKE_CASE");
+    }
+
+    #[test]
     fn snake_to_kebab() {
         assert_eq!(convert::to_kebab_case("snake_case"), "snake-case");
     }
@@ -130,10 +154,45 @@ mod tests {
         assert_eq!(convert::to_pascal_case("snake_case"), "SnakeCase");
     }
 
+    // ==== UPPER_SNAKE_CASE ==== //
+    #[test]
+    fn upper_snake_to_snake() {
+        assert_eq!(
+            convert::to_snake_case("UPPER_SNAKE_CASE"),
+            "upper_snake_case"
+        );
+    }
+
+    #[test]
+    fn upper_snake_to_kebab() {
+        assert_eq!(
+            convert::to_kebab_case("UPPER_SNAKE_CASE"),
+            "upper-snake-case"
+        );
+    }
+
+    #[test]
+    fn upper_snake_to_camel() {
+        assert_eq!(convert::to_camel_case("UPPER_SNAKE_CASE"), "upperSnakeCase");
+    }
+
+    #[test]
+    fn upper_snake_to_pascal() {
+        assert_eq!(
+            convert::to_pascal_case("UPPER_SNAKE_CASE"),
+            "UpperSnakeCase"
+        );
+    }
+
     // ==== kebab-case ==== //
     #[test]
     fn kebab_to_snake() {
         assert_eq!(convert::to_snake_case("kebab-case"), "kebab_case");
+    }
+
+    #[test]
+    fn kebab_to_upper_snake() {
+        assert_eq!(convert::to_upper_snake_case("kebab-case"), "KEBAB_CASE");
     }
 
     #[test]
@@ -153,6 +212,11 @@ mod tests {
     }
 
     #[test]
+    fn camel_to_upper_snake() {
+        assert_eq!(convert::to_upper_snake_case("camelCase"), "CAMEL_CASE");
+    }
+
+    #[test]
     fn camel_to_kebab() {
         assert_eq!(convert::to_kebab_case("camelCase"), "camel-case");
     }
@@ -166,6 +230,11 @@ mod tests {
     #[test]
     fn pascal_to_snake() {
         assert_eq!(convert::to_snake_case("PascalCase"), "pascal_case");
+    }
+
+    #[test]
+    fn pascal_to_upper_snake() {
+        assert_eq!(convert::to_upper_snake_case("PascalCase"), "PASCAL_CASE");
     }
 
     #[test]
@@ -201,6 +270,10 @@ mod tests {
         assert_eq!(
             convert::to_camel_case("thisIsHelloWorld-Hello_World Hello world"),
             "thisIsHelloWorldHelloWorldHelloWorld"
+        );
+        assert_eq!(
+            convert::to_upper_snake_case("thisIsHelloWorld-Hello_World Hello world"),
+            "THIS_IS_HELLO_WORLD_HELLO_WORLD_HELLO_WORLD"
         );
         assert_eq!(
             convert::to_pascal_case("thisIsHelloWorld-Hello_World Hello world"),
