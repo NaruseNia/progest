@@ -1,3 +1,5 @@
+pub mod conversion;
+
 use regex::Regex;
 
 /// Naming convention enum.
@@ -85,137 +87,6 @@ pub fn guess_naming_convention(s: &str) -> NamingConvention {
     NamingConvention::Unknown
 }
 
-pub mod convert {
-    use crate::{tokenize, NamingConvention};
-
-    /// Convert the input string to PascalCase.
-    ///
-    /// # Examples
-    /// ```
-    /// use naming_convention::convert::to_pascal_case;
-    ///
-    /// let pascal = to_pascal_case("pascalCase");
-    /// assert_eq!(pascal, "PascalCase");
-    /// ```
-    pub fn to_pascal_case(s: &str) -> String {
-        tokenize(s)
-            .iter()
-            .map(|word| {
-                let word_lower = word.to_lowercase();
-                let mut chars = word_lower.chars();
-                match chars.next() {
-                    None => String::new(),
-                    Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
-                }
-            })
-            .collect()
-    }
-
-    /// Convert the input string to camelCase.
-    ///
-    /// # Examples
-    /// ```
-    /// use naming_convention::convert::to_camel_case;
-    ///
-    /// let camel = to_camel_case("camel_case");
-    /// assert_eq!(camel, "camelCase");
-    /// ```
-    pub fn to_camel_case(s: &str) -> String {
-        let parts = tokenize(s);
-        if parts.is_empty() {
-            return String::new();
-        }
-        parts
-            .iter()
-            .enumerate()
-            .map(|(i, word)| {
-                let word_lower = word.to_lowercase();
-                if i != 0 {
-                    let mut chars = word_lower.chars();
-                    match chars.next() {
-                        None => String::new(),
-                        Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
-                    }
-                } else {
-                    word_lower
-                }
-            })
-            .collect()
-    }
-
-    /// Convert the input string to snake_case.
-    ///
-    /// # Examples
-    /// ```
-    /// use naming_convention::convert::to_snake_case;
-    ///
-    /// let snake = to_snake_case("snakeCase");
-    /// assert_eq!(snake, "snake_case");
-    /// ```
-    pub fn to_snake_case(s: &str) -> String {
-        tokenize(s)
-            .iter()
-            .map(|word| word.to_lowercase())
-            .collect::<Vec<String>>()
-            .join("_")
-    }
-
-    /// Convert the input string to UPPER_SNAKE_CASE.
-    ///
-    /// # Examples
-    /// ```
-    /// use naming_convention::convert::to_upper_snake_case;
-    ///
-    /// let upper_snake = to_upper_snake_case("upperSnakeCase");
-    /// assert_eq!(upper_snake, "UPPER_SNAKE_CASE");
-    /// ```
-    pub fn to_upper_snake_case(s: &str) -> String {
-        tokenize(s)
-            .iter()
-            .map(|word| word.to_uppercase())
-            .collect::<Vec<String>>()
-            .join("_")
-    }
-
-    /// Convert the input string to kebab-case.
-    ///
-    /// # Examples
-    /// ```
-    /// use naming_convention::convert::to_kebab_case;
-    ///
-    /// let kebab = to_kebab_case("kebabCase");
-    /// assert_eq!(kebab, "kebab-case");
-    /// ```
-    pub fn to_kebab_case(s: &str) -> String {
-        tokenize(s)
-            .iter()
-            .map(|word| word.to_lowercase())
-            .collect::<Vec<String>>()
-            .join("-")
-    }
-
-    /// Convert the input string to the specified naming convention.
-    /// If the specified naming convention is `NamingConvention::Unknown`, it returns an empty string.
-    ///
-    /// # Examples
-    /// ```
-    /// use naming_convention::{convert::convert_to, NamingConvention};
-    ///
-    /// let pascal = convert_to("pascalCase", NamingConvention::PascalCase);
-    /// assert_eq!(pascal, "PascalCase");
-    /// ```
-    pub fn convert_to(s: &str, to: NamingConvention) -> String {
-        match to {
-            NamingConvention::PascalCase => to_pascal_case(s),
-            NamingConvention::CamelCase => to_camel_case(s),
-            NamingConvention::SnakeCase => to_snake_case(s),
-            NamingConvention::KebabCase => to_kebab_case(s),
-            NamingConvention::UpperCamel => to_upper_snake_case(s),
-            NamingConvention::Unknown => String::new(),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -223,29 +94,29 @@ mod tests {
     // ==== snake_case ==== //
     #[test]
     fn snake_to_upper_snake() {
-        assert_eq!(convert::to_upper_snake_case("snake_case"), "SNAKE_CASE");
+        assert_eq!(conversion::to_upper_snake_case("snake_case"), "SNAKE_CASE");
     }
 
     #[test]
     fn snake_to_kebab() {
-        assert_eq!(convert::to_kebab_case("snake_case"), "snake-case");
+        assert_eq!(conversion::to_kebab_case("snake_case"), "snake-case");
     }
 
     #[test]
     fn snake_to_camel() {
-        assert_eq!(convert::to_camel_case("snake_case"), "snakeCase");
+        assert_eq!(conversion::to_camel_case("snake_case"), "snakeCase");
     }
 
     #[test]
     fn snake_to_pascal() {
-        assert_eq!(convert::to_pascal_case("snake_case"), "SnakeCase");
+        assert_eq!(conversion::to_pascal_case("snake_case"), "SnakeCase");
     }
 
     // ==== UPPER_SNAKE_CASE ==== //
     #[test]
     fn upper_snake_to_snake() {
         assert_eq!(
-            convert::to_snake_case("UPPER_SNAKE_CASE"),
+            conversion::to_snake_case("UPPER_SNAKE_CASE"),
             "upper_snake_case"
         );
     }
@@ -253,20 +124,23 @@ mod tests {
     #[test]
     fn upper_snake_to_kebab() {
         assert_eq!(
-            convert::to_kebab_case("UPPER_SNAKE_CASE"),
+            conversion::to_kebab_case("UPPER_SNAKE_CASE"),
             "upper-snake-case"
         );
     }
 
     #[test]
     fn upper_snake_to_camel() {
-        assert_eq!(convert::to_camel_case("UPPER_SNAKE_CASE"), "upperSnakeCase");
+        assert_eq!(
+            conversion::to_camel_case("UPPER_SNAKE_CASE"),
+            "upperSnakeCase"
+        );
     }
 
     #[test]
     fn upper_snake_to_pascal() {
         assert_eq!(
-            convert::to_pascal_case("UPPER_SNAKE_CASE"),
+            conversion::to_pascal_case("UPPER_SNAKE_CASE"),
             "UpperSnakeCase"
         );
     }
@@ -274,64 +148,64 @@ mod tests {
     // ==== kebab-case ==== //
     #[test]
     fn kebab_to_snake() {
-        assert_eq!(convert::to_snake_case("kebab-case"), "kebab_case");
+        assert_eq!(conversion::to_snake_case("kebab-case"), "kebab_case");
     }
 
     #[test]
     fn kebab_to_upper_snake() {
-        assert_eq!(convert::to_upper_snake_case("kebab-case"), "KEBAB_CASE");
+        assert_eq!(conversion::to_upper_snake_case("kebab-case"), "KEBAB_CASE");
     }
 
     #[test]
     fn kebab_to_camel() {
-        assert_eq!(convert::to_camel_case("kebab-case"), "kebabCase");
+        assert_eq!(conversion::to_camel_case("kebab-case"), "kebabCase");
     }
 
     #[test]
     fn kebab_to_pascal() {
-        assert_eq!(convert::to_pascal_case("kebab-case"), "KebabCase");
+        assert_eq!(conversion::to_pascal_case("kebab-case"), "KebabCase");
     }
 
     // ==== camelCase ==== //
     #[test]
     fn camel_to_snake() {
-        assert_eq!(convert::to_snake_case("camelCase"), "camel_case");
+        assert_eq!(conversion::to_snake_case("camelCase"), "camel_case");
     }
 
     #[test]
     fn camel_to_upper_snake() {
-        assert_eq!(convert::to_upper_snake_case("camelCase"), "CAMEL_CASE");
+        assert_eq!(conversion::to_upper_snake_case("camelCase"), "CAMEL_CASE");
     }
 
     #[test]
     fn camel_to_kebab() {
-        assert_eq!(convert::to_kebab_case("camelCase"), "camel-case");
+        assert_eq!(conversion::to_kebab_case("camelCase"), "camel-case");
     }
 
     #[test]
     fn camel_to_pascal() {
-        assert_eq!(convert::to_pascal_case("camelCase"), "CamelCase");
+        assert_eq!(conversion::to_pascal_case("camelCase"), "CamelCase");
     }
 
     // ==== PascalCase ==== //
     #[test]
     fn pascal_to_snake() {
-        assert_eq!(convert::to_snake_case("PascalCase"), "pascal_case");
+        assert_eq!(conversion::to_snake_case("PascalCase"), "pascal_case");
     }
 
     #[test]
     fn pascal_to_upper_snake() {
-        assert_eq!(convert::to_upper_snake_case("PascalCase"), "PASCAL_CASE");
+        assert_eq!(conversion::to_upper_snake_case("PascalCase"), "PASCAL_CASE");
     }
 
     #[test]
     fn pascal_to_kebab() {
-        assert_eq!(convert::to_kebab_case("PascalCase"), "pascal-case");
+        assert_eq!(conversion::to_kebab_case("PascalCase"), "pascal-case");
     }
 
     #[test]
     fn pascal_to_camel() {
-        assert_eq!(convert::to_camel_case("PascalCase"), "pascalCase");
+        assert_eq!(conversion::to_camel_case("PascalCase"), "pascalCase");
     }
 
     // ==== tokenize ==== //
@@ -348,23 +222,23 @@ mod tests {
     fn complex_pattern_conversion() {
         let input = "thisIsHelloWorld-Hello_World Hello world";
         assert_eq!(
-            convert::to_snake_case(input),
+            conversion::to_snake_case(input),
             "this_is_hello_world_hello_world_hello_world"
         );
         assert_eq!(
-            convert::to_kebab_case(input),
+            conversion::to_kebab_case(input),
             "this-is-hello-world-hello-world-hello-world"
         );
         assert_eq!(
-            convert::to_camel_case(input),
+            conversion::to_camel_case(input),
             "thisIsHelloWorldHelloWorldHelloWorld"
         );
         assert_eq!(
-            convert::to_upper_snake_case(input),
+            conversion::to_upper_snake_case(input),
             "THIS_IS_HELLO_WORLD_HELLO_WORLD_HELLO_WORLD"
         );
         assert_eq!(
-            convert::to_pascal_case(input),
+            conversion::to_pascal_case(input),
             "ThisIsHelloWorldHelloWorldHelloWorld"
         );
     }
@@ -422,7 +296,7 @@ mod tests {
     #[test]
     fn convert_to_pascal_case() {
         assert_eq!(
-            convert::convert_to("pascalCase", NamingConvention::PascalCase),
+            conversion::convert_to("pascalCase", NamingConvention::PascalCase),
             "PascalCase"
         );
     }
@@ -430,7 +304,7 @@ mod tests {
     #[test]
     fn convert_to_camel_case() {
         assert_eq!(
-            convert::convert_to("CamelCase", NamingConvention::CamelCase),
+            conversion::convert_to("CamelCase", NamingConvention::CamelCase),
             "camelCase"
         );
     }
@@ -438,7 +312,7 @@ mod tests {
     #[test]
     fn convert_to_snake_case() {
         assert_eq!(
-            convert::convert_to("snake_case", NamingConvention::SnakeCase),
+            conversion::convert_to("snake_case", NamingConvention::SnakeCase),
             "snake_case"
         );
     }
@@ -446,7 +320,7 @@ mod tests {
     #[test]
     fn convert_to_kebab_case() {
         assert_eq!(
-            convert::convert_to("kebab-case", NamingConvention::KebabCase),
+            conversion::convert_to("kebab-case", NamingConvention::KebabCase),
             "kebab-case"
         );
     }
@@ -454,7 +328,7 @@ mod tests {
     #[test]
     fn convert_to_upper_camel() {
         assert_eq!(
-            convert::convert_to("UPPER_CAMEL", NamingConvention::UpperCamel),
+            conversion::convert_to("UPPER_CAMEL", NamingConvention::UpperCamel),
             "UPPER_CAMEL"
         );
     }
