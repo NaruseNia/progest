@@ -33,11 +33,7 @@ pub fn to_pascal_case(s: &str) -> String {
 /// assert_eq!(camel, "camelCase");
 /// ```
 pub fn to_camel_case(s: &str) -> String {
-    let parts = tokenize(s);
-    if parts.is_empty() {
-        return String::new();
-    }
-    parts
+    tokenize(s)
         .iter()
         .enumerate()
         .map(|(i, word)| {
