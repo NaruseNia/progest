@@ -1,0 +1,6 @@
+language: typescript
+
+tasks:
+  install:
+    command: deno install
+

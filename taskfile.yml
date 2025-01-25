@@ -1,9 +1,0 @@
-version: "3"
-
-vars: { PACKAGE_MANAGER: "deno" }
-
-tasks:
-  app:dev:
-    desc: "Run the app"
-    dir: ./app
-    cmd: "{{.PACKAGE_MANAGER}} run tauri dev"
