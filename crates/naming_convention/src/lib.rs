@@ -1,5 +1,16 @@
 use regex::Regex;
 
+/// Naming convention enum.
+#[derive(Debug, PartialEq)]
+pub enum NamingConvention {
+    PascalCase,
+    CamelCase,
+    SnakeCase,
+    KebabCase,
+    UpperCamel,
+    Unknown,
+}
+
 /// Tokenize the input string.
 ///
 /// # Examples
@@ -17,6 +28,61 @@ pub fn tokenize(input: &str) -> Vec<String> {
         .collect();
 
     parts
+}
+
+/// Guess the naming convention of the input string.
+/// If the input string does not match any naming convention, it returns `NamingConvention::Unknown`.
+///
+/// # Examples
+/// ```
+/// use naming_convention::{guess_naming_convention, NamingConvention};
+///
+/// let pascal = guess_naming_convention("PascalCase");
+/// assert_eq!(pascal, NamingConvention::PascalCase);
+///
+/// let camel = guess_naming_convention("camelCase");
+/// assert_eq!(camel, NamingConvention::CamelCase);
+///
+/// let snake = guess_naming_convention("snake_case");
+/// assert_eq!(snake, NamingConvention::SnakeCase);
+///
+/// let kebab = guess_naming_convention("kebab-case");
+/// assert_eq!(kebab, NamingConvention::KebabCase);
+///
+/// let upper_camel = guess_naming_convention("UPPER_CAMEL");
+/// assert_eq!(upper_camel, NamingConvention::UpperCamel);
+///
+/// let unknown = guess_naming_convention("this_Is-UnknownCase");
+/// assert_eq!(unknown, NamingConvention::Unknown);
+/// ```
+pub fn guess_naming_convention(s: &str) -> NamingConvention {
+    let pascal_case_re = Regex::new(r"^[A-Z][a-z]*(?:[A-Z][a-z]*)*$").unwrap();
+    if pascal_case_re.is_match(s) {
+        return NamingConvention::PascalCase;
+    }
+
+    let camel_case_re = Regex::new(r"^[a-z][a-z]*(?:[A-Z][a-z]*)*$").unwrap();
+    if camel_case_re.is_match(s) {
+        return NamingConvention::CamelCase;
+    }
+
+    let snake_case_re = Regex::new(r"^[a-z]+(?:_[a-z]+)*$").unwrap();
+    if snake_case_re.is_match(s) {
+        return NamingConvention::SnakeCase;
+    }
+
+    let kebab_case_re = Regex::new(r"^[a-z]+(?:-[a-z]+)*$").unwrap();
+    if kebab_case_re.is_match(s) {
+        return NamingConvention::KebabCase;
+    }
+
+    let upper_camel_re = Regex::new(r"^[A-Z]+(?:_[A-Z]+)*$").unwrap();
+    if upper_camel_re.is_match(s) {
+        return NamingConvention::UpperCamel;
+    }
+
+    // 上記のいずれにも当てはまらない場合
+    NamingConvention::Unknown
 }
 
 pub mod convert {
@@ -278,6 +344,55 @@ mod tests {
         assert_eq!(
             convert::to_pascal_case("thisIsHelloWorld-Hello_World Hello world"),
             "ThisIsHelloWorldHelloWorldHelloWorld"
+        );
+    }
+
+    // ==== guess_naming_convention ==== //
+    #[test]
+    fn guess_pascal_case() {
+        assert_eq!(
+            guess_naming_convention("PascalCase"),
+            NamingConvention::PascalCase
+        );
+    }
+
+    #[test]
+    fn guess_camel_case() {
+        assert_eq!(
+            guess_naming_convention("camelCase"),
+            NamingConvention::CamelCase
+        );
+    }
+
+    #[test]
+    fn guess_snake_case() {
+        assert_eq!(
+            guess_naming_convention("snake_case"),
+            NamingConvention::SnakeCase
+        );
+    }
+
+    #[test]
+    fn guess_kebab_case() {
+        assert_eq!(
+            guess_naming_convention("kebab-case"),
+            NamingConvention::KebabCase
+        );
+    }
+
+    #[test]
+    fn guess_upper_camel() {
+        assert_eq!(
+            guess_naming_convention("UPPER_CAMEL"),
+            NamingConvention::UpperCamel
+        );
+    }
+
+    #[test]
+    fn guess_unknown() {
+        assert_eq!(
+            guess_naming_convention("this_Is-UnknownCase"),
+            NamingConvention::Unknown
         );
     }
 }
