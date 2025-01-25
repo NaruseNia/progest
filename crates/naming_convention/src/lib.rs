@@ -325,24 +325,25 @@ mod tests {
     // ==== Complex pattern ==== //
     #[test]
     fn complex_pattern_conversion() {
+        let input = "thisIsHelloWorld-Hello_World Hello world";
         assert_eq!(
-            convert::to_snake_case("thisIsHelloWorld-Hello_World Hello world"),
+            convert::to_snake_case(input),
             "this_is_hello_world_hello_world_hello_world"
         );
         assert_eq!(
-            convert::to_kebab_case("thisIsHelloWorld-Hello_World Hello world"),
+            convert::to_kebab_case(input),
             "this-is-hello-world-hello-world-hello-world"
         );
         assert_eq!(
-            convert::to_camel_case("thisIsHelloWorld-Hello_World Hello world"),
+            convert::to_camel_case(input),
             "thisIsHelloWorldHelloWorldHelloWorld"
         );
         assert_eq!(
-            convert::to_upper_snake_case("thisIsHelloWorld-Hello_World Hello world"),
+            convert::to_upper_snake_case(input),
             "THIS_IS_HELLO_WORLD_HELLO_WORLD_HELLO_WORLD"
         );
         assert_eq!(
-            convert::to_pascal_case("thisIsHelloWorld-Hello_World Hello world"),
+            convert::to_pascal_case(input),
             "ThisIsHelloWorldHelloWorldHelloWorld"
         );
     }
