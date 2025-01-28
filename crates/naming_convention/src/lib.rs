@@ -19,11 +19,11 @@ pub enum NamingConvention {
 /// ```
 /// use naming_convention::tokenize;
 ///
-/// let tokens = tokenize("thisIsHelloWorld-Hello_World Hello world");
-/// assert_eq!(tokens, vec!["this", "Is", "Hello", "World", "Hello", "World", "Hello", "world"]);
+/// let tokens = tokenize("00thisIsHelloWorld-Hello_World Hello world 02");
+/// assert_eq!(tokens, vec!["00", "this", "Is", "Hello", "World", "Hello", "World", "Hello", "world", "02"]);
 /// ```
 pub fn tokenize(input: &str) -> Vec<String> {
-    let re = Regex::new(r"([A-Z]{2,}|[A-Z][a-z]*|[a-z]+)").unwrap();
+    let re = Regex::new(r"([A-Z]{2,}|[A-Z][a-z]*|[a-z]+|\d+)").unwrap();
     let parts: Vec<String> = re
         .find_iter(input)
         .map(|m| m.as_str().to_string())
@@ -58,27 +58,27 @@ pub fn tokenize(input: &str) -> Vec<String> {
 /// assert_eq!(unknown, NamingConvention::Unknown);
 /// ```
 pub fn guess_naming_convention(s: &str) -> NamingConvention {
-    let pascal_case_re = Regex::new(r"^[A-Z][a-z]*(?:[A-Z][a-z]*)*$").unwrap();
+    let pascal_case_re = Regex::new(r"^[A-Z0-9][a-z0-9]*(?:[A-Z0-9][a-z0-9]*)*$").unwrap();
     if pascal_case_re.is_match(s) {
         return NamingConvention::PascalCase;
     }
 
-    let camel_case_re = Regex::new(r"^[a-z][a-z]*(?:[A-Z][a-z]*)*$").unwrap();
+    let camel_case_re = Regex::new(r"^[a-z0-9][a-z0-9]*(?:[A-Z][a-z0-9]*)*$").unwrap();
     if camel_case_re.is_match(s) {
         return NamingConvention::CamelCase;
     }
 
-    let snake_case_re = Regex::new(r"^[a-z]+(?:_[a-z]+)*$").unwrap();
+    let snake_case_re = Regex::new(r"^[a-z0-9]+(?:_[a-z0-9]+)*$").unwrap();
     if snake_case_re.is_match(s) {
         return NamingConvention::SnakeCase;
     }
 
-    let kebab_case_re = Regex::new(r"^[a-z]+(?:-[a-z]+)*$").unwrap();
+    let kebab_case_re = Regex::new(r"^[a-z0-9]+(?:-[a-z0-9]+)*$").unwrap();
     if kebab_case_re.is_match(s) {
         return NamingConvention::KebabCase;
     }
 
-    let upper_camel_re = Regex::new(r"^[A-Z]+(?:_[A-Z]+)*$").unwrap();
+    let upper_camel_re = Regex::new(r"^[A-Z0-9]+(?:_[A-Z0-9]+)*$").unwrap();
     if upper_camel_re.is_match(s) {
         return NamingConvention::UpperCamel;
     }
@@ -94,152 +94,209 @@ mod tests {
     // ==== snake_case ==== //
     #[test]
     fn snake_to_upper_snake() {
-        assert_eq!(conversion::to_upper_snake_case("snake_case"), "SNAKE_CASE");
+        assert_eq!(
+            conversion::to_upper_snake_case("snake_case_00"),
+            "SNAKE_CASE_00"
+        );
     }
 
     #[test]
     fn snake_to_kebab() {
-        assert_eq!(conversion::to_kebab_case("snake_case"), "snake-case");
+        assert_eq!(conversion::to_kebab_case("snake_case_00"), "snake-case-00");
     }
 
     #[test]
     fn snake_to_camel() {
-        assert_eq!(conversion::to_camel_case("snake_case"), "snakeCase");
+        assert_eq!(conversion::to_camel_case("snake_case_00"), "snakeCase00");
     }
 
     #[test]
     fn snake_to_pascal() {
-        assert_eq!(conversion::to_pascal_case("snake_case"), "SnakeCase");
+        assert_eq!(conversion::to_pascal_case("snake_case_00"), "SnakeCase00");
     }
 
     // ==== UPPER_SNAKE_CASE ==== //
     #[test]
     fn upper_snake_to_snake() {
         assert_eq!(
-            conversion::to_snake_case("UPPER_SNAKE_CASE"),
-            "upper_snake_case"
+            conversion::to_snake_case("UPPER_SNAKE_CASE_00"),
+            "upper_snake_case_00"
         );
     }
 
     #[test]
     fn upper_snake_to_kebab() {
         assert_eq!(
-            conversion::to_kebab_case("UPPER_SNAKE_CASE"),
-            "upper-snake-case"
+            conversion::to_kebab_case("UPPER_SNAKE_CASE_00"),
+            "upper-snake-case-00"
         );
     }
 
     #[test]
     fn upper_snake_to_camel() {
         assert_eq!(
-            conversion::to_camel_case("UPPER_SNAKE_CASE"),
-            "upperSnakeCase"
+            conversion::to_camel_case("UPPER_SNAKE_CASE_00"),
+            "upperSnakeCase00"
         );
     }
 
     #[test]
     fn upper_snake_to_pascal() {
         assert_eq!(
-            conversion::to_pascal_case("UPPER_SNAKE_CASE"),
-            "UpperSnakeCase"
+            conversion::to_pascal_case("UPPER_SNAKE_CASE_00"),
+            "UpperSnakeCase00"
         );
     }
 
     // ==== kebab-case ==== //
     #[test]
     fn kebab_to_snake() {
-        assert_eq!(conversion::to_snake_case("kebab-case"), "kebab_case");
+        assert_eq!(conversion::to_snake_case("kebab-case-00"), "kebab_case_00");
     }
 
     #[test]
     fn kebab_to_upper_snake() {
-        assert_eq!(conversion::to_upper_snake_case("kebab-case"), "KEBAB_CASE");
+        assert_eq!(
+            conversion::to_upper_snake_case("kebab-case-00"),
+            "KEBAB_CASE_00"
+        );
     }
 
     #[test]
     fn kebab_to_camel() {
-        assert_eq!(conversion::to_camel_case("kebab-case"), "kebabCase");
+        assert_eq!(conversion::to_camel_case("kebab-case-00"), "kebabCase00");
     }
 
     #[test]
     fn kebab_to_pascal() {
-        assert_eq!(conversion::to_pascal_case("kebab-case"), "KebabCase");
+        assert_eq!(conversion::to_pascal_case("kebab-case-00"), "KebabCase00");
     }
 
     // ==== camelCase ==== //
     #[test]
     fn camel_to_snake() {
-        assert_eq!(conversion::to_snake_case("camelCase"), "camel_case");
+        assert_eq!(conversion::to_snake_case("camelCase00"), "camel_case_00");
     }
 
     #[test]
     fn camel_to_upper_snake() {
-        assert_eq!(conversion::to_upper_snake_case("camelCase"), "CAMEL_CASE");
+        assert_eq!(
+            conversion::to_upper_snake_case("camelCase00"),
+            "CAMEL_CASE_00"
+        );
     }
 
     #[test]
     fn camel_to_kebab() {
-        assert_eq!(conversion::to_kebab_case("camelCase"), "camel-case");
+        assert_eq!(conversion::to_kebab_case("camelCase00"), "camel-case-00");
     }
 
     #[test]
     fn camel_to_pascal() {
-        assert_eq!(conversion::to_pascal_case("camelCase"), "CamelCase");
+        assert_eq!(conversion::to_pascal_case("camelCase00"), "CamelCase00");
     }
 
     // ==== PascalCase ==== //
     #[test]
     fn pascal_to_snake() {
-        assert_eq!(conversion::to_snake_case("PascalCase"), "pascal_case");
+        assert_eq!(conversion::to_snake_case("PascalCase00"), "pascal_case_00");
     }
 
     #[test]
     fn pascal_to_upper_snake() {
-        assert_eq!(conversion::to_upper_snake_case("PascalCase"), "PASCAL_CASE");
+        assert_eq!(
+            conversion::to_upper_snake_case("PascalCase00"),
+            "PASCAL_CASE_00"
+        );
     }
 
     #[test]
     fn pascal_to_kebab() {
-        assert_eq!(conversion::to_kebab_case("PascalCase"), "pascal-case");
+        assert_eq!(conversion::to_kebab_case("PascalCase00"), "pascal-case-00");
     }
 
     #[test]
     fn pascal_to_camel() {
-        assert_eq!(conversion::to_camel_case("PascalCase"), "pascalCase");
+        assert_eq!(conversion::to_camel_case("PascalCase00"), "pascalCase00");
     }
 
     // ==== tokenize ==== //
     #[test]
     fn tokenize_complex() {
         assert_eq!(
-            tokenize("thisIsHelloWorld-Hello_World Hello world"),
-            vec!["this", "Is", "Hello", "World", "Hello", "World", "Hello", "world"]
+            tokenize("00thisIsHelloWorld-Hello_World Hello world 02"),
+            vec!["00", "this", "Is", "Hello", "World", "Hello", "World", "Hello", "world", "02"]
         );
     }
 
     // ==== Complex pattern ==== //
     #[test]
     fn complex_pattern_conversion() {
-        let input = "thisIsHelloWorld-Hello_World Hello world";
+        let input = "thisIsHelloWorld-Hello_World Hello world00";
         assert_eq!(
             conversion::to_snake_case(input),
-            "this_is_hello_world_hello_world_hello_world"
+            "this_is_hello_world_hello_world_hello_world_00"
         );
         assert_eq!(
             conversion::to_kebab_case(input),
-            "this-is-hello-world-hello-world-hello-world"
+            "this-is-hello-world-hello-world-hello-world-00"
         );
         assert_eq!(
             conversion::to_camel_case(input),
-            "thisIsHelloWorldHelloWorldHelloWorld"
+            "thisIsHelloWorldHelloWorldHelloWorld00"
         );
         assert_eq!(
             conversion::to_upper_snake_case(input),
-            "THIS_IS_HELLO_WORLD_HELLO_WORLD_HELLO_WORLD"
+            "THIS_IS_HELLO_WORLD_HELLO_WORLD_HELLO_WORLD_00"
         );
         assert_eq!(
             conversion::to_pascal_case(input),
-            "ThisIsHelloWorldHelloWorldHelloWorld"
+            "ThisIsHelloWorldHelloWorldHelloWorld00"
+        );
+    }
+
+    #[test]
+    fn special_pattern_conversion() {
+        assert_eq!(
+            conversion::to_snake_case("20000101TestName0001"),
+            "20000101_test_name_0001"
+        );
+        assert_eq!(
+            conversion::to_upper_snake_case("20000101TestName0001"),
+            "20000101_TEST_NAME_0001"
+        );
+        assert_eq!(
+            conversion::to_kebab_case("20000101TestName0001"),
+            "20000101-test-name-0001"
+        );
+        assert_eq!(
+            conversion::to_camel_case("20000101_test_name_0001"),
+            "20000101TestName0001"
+        );
+        assert_eq!(
+            conversion::to_pascal_case("20000101_test_name_0001"),
+            "20000101TestName0001"
+        );
+
+        assert_eq!(
+            conversion::to_snake_case("0001 This is test, is it?"),
+            "0001_this_is_test_is_it"
+        );
+        assert_eq!(
+            conversion::to_upper_snake_case("0001 This is test, is it?"),
+            "0001_THIS_IS_TEST_IS_IT"
+        );
+        assert_eq!(
+            conversion::to_kebab_case("0001 This is test, is it?"),
+            "0001-this-is-test-is-it"
+        );
+        assert_eq!(
+            conversion::to_camel_case("0001 This is test, is it?"),
+            "0001ThisIsTestIsIt"
+        );
+        assert_eq!(
+            conversion::to_pascal_case("0001 This is test, is it?"),
+            "0001ThisIsTestIsIt"
         );
     }
 
@@ -247,7 +304,7 @@ mod tests {
     #[test]
     fn guess_pascal_case() {
         assert_eq!(
-            guess_naming_convention("PascalCase"),
+            guess_naming_convention("PascalCase00"),
             NamingConvention::PascalCase
         );
     }
@@ -255,7 +312,7 @@ mod tests {
     #[test]
     fn guess_camel_case() {
         assert_eq!(
-            guess_naming_convention("camelCase"),
+            guess_naming_convention("camelCase00"),
             NamingConvention::CamelCase
         );
     }
@@ -263,7 +320,7 @@ mod tests {
     #[test]
     fn guess_snake_case() {
         assert_eq!(
-            guess_naming_convention("snake_case"),
+            guess_naming_convention("snake_case_00"),
             NamingConvention::SnakeCase
         );
     }
@@ -271,7 +328,7 @@ mod tests {
     #[test]
     fn guess_kebab_case() {
         assert_eq!(
-            guess_naming_convention("kebab-case"),
+            guess_naming_convention("kebab-case-00"),
             NamingConvention::KebabCase
         );
     }
@@ -279,7 +336,7 @@ mod tests {
     #[test]
     fn guess_upper_camel() {
         assert_eq!(
-            guess_naming_convention("UPPER_CAMEL"),
+            guess_naming_convention("UPPER_CAMEL_00"),
             NamingConvention::UpperCamel
         );
     }
@@ -287,7 +344,7 @@ mod tests {
     #[test]
     fn guess_unknown() {
         assert_eq!(
-            guess_naming_convention("this_Is-UnknownCase"),
+            guess_naming_convention("this_Is-UnknownCase00"),
             NamingConvention::Unknown
         );
     }
