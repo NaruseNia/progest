@@ -8,6 +8,7 @@ use std::{
 };
 
 use getset::{Getters, MutGetters};
+use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
@@ -39,7 +40,7 @@ pub enum RelationType {
 /// Metafile is a struct that represents a file or folder in the system.
 /// It contains metadata about the file or folder.
 /// The properties field is a generic type that can be used to store additional metadata.
-#[derive(Getters, MutGetters, Serialize, Deserialize, Debug)]
+#[derive(Getters, MutGetters, Serialize, Deserialize, Debug, PartialEq)]
 pub struct Metafile<P = MetaProperty> {
     #[getset(get = "pub")]
     guid: String,
@@ -102,6 +103,14 @@ impl Metafile {
 
     pub fn update_modified_exact(&mut self, time: SystemTime) {
         self.modified_at = time;
+    }
+
+    pub fn serialize(&self) -> Vec<u8> {
+        rmp_serde::to_vec_named(&self).unwrap()
+    }
+
+    pub fn deserialize(data: Vec<u8>) -> Self {
+        rmp_serde::from_slice(&data).unwrap()
     }
 }
 

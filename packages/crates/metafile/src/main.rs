@@ -1,6 +1,6 @@
 use std::{env, path::Path};
 
-use metafile::create_meta_from_file;
+use metafile::{create_meta_from_file, Metafile};
 
 fn main() {
     println!("{:?}", env::current_dir().unwrap());
@@ -9,4 +9,6 @@ fn main() {
     meta.add_tag(uuidv7::create());
     println!("{:?}", meta);
     println!("{:?}", meta.raw_path());
+    println!("{:?}", meta.serialize());
+    println!("{:?}", Metafile::deserialize(meta.serialize()));
 }
