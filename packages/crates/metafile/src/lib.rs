@@ -1,19 +1,17 @@
-mod tag;
+pub mod relation;
+pub mod tag;
 
 use std::{
-    collections::{HashMap, HashSet},
-    ffi::OsStr,
-    fs,
-    io::Read,
-    os::windows::fs::MetadataExt,
-    path::Path,
+    collections::HashMap, ffi::OsStr, fs, io::Read, os::windows::fs::MetadataExt, path::Path,
     time::SystemTime,
 };
 
 use brotli::{CompressorReader, Decompressor};
-use getset::{Getters, MutGetters};
+use getset::Getters;
 use serde::{Deserialize, Serialize};
 use tag::Tag;
+
+use crate::relation::*;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum MetaType {
@@ -33,18 +31,10 @@ pub enum FileType {
     Other,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum RelationType {
-    Parent,
-    Child,
-    Sibling,
-    Related,
-}
-
 /// Metafile is a struct that represents a file or folder in the system.
 /// It contains metadata about the file or folder.
 /// The properties field is a generic type that can be used to store additional metadata.
-#[derive(Getters, MutGetters, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Getters, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct Metafile<P = MetaProperty> {
     #[getset(get = "pub")]
     uid: String,
@@ -71,7 +61,7 @@ pub struct Metafile<P = MetaProperty> {
     modified_at: SystemTime,
 
     #[getset(get = "pub")]
-    tags: HashSet<Tag>,
+    tags: HashMap<String, Tag>,
 
     #[getset(get = "pub")]
     relations: HashMap<String, Relation>,
@@ -81,20 +71,29 @@ pub struct Metafile<P = MetaProperty> {
 }
 
 impl Metafile {
-    pub fn add_relation(&mut self, relation: Relation) {
-        self.relations.insert(relation.guid.clone(), relation);
+    pub fn add_relation(&mut self, relation: &Relation) {
+        self.relations
+            .insert(relation.uid().clone(), relation.clone());
     }
 
-    pub fn remove_relation(&mut self, relation: &Relation) {
-        self.relations.remove(&relation.guid);
+    pub fn remove_relation(&mut self, uid: &str) {
+        self.relations.remove(uid);
     }
 
-    pub fn add_tag(&mut self, tag: Tag) {
-        self.tags.insert(tag);
+    pub fn get_relation(&self, uid: &str) -> Option<&Relation> {
+        self.relations.get(uid)
     }
 
-    pub fn remove_tag(&mut self, tag: &Tag) {
-        self.tags.remove(tag);
+    pub fn add_tag(&mut self, tag: &Tag) {
+        self.tags.insert(tag.uid().clone(), tag.clone());
+    }
+
+    pub fn remove_tag(&mut self, uid: &str) {
+        self.tags.remove(uid);
+    }
+
+    pub fn get_tag(&self, uid: &str) -> Option<&Tag> {
+        self.tags.get(uid)
     }
 
     pub fn update_property(&mut self, property: MetaProperty) {
@@ -143,21 +142,6 @@ impl Metafile {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub struct Relation {
-    guid: String,
-    relation_type: RelationType,
-}
-
-impl Relation {
-    pub fn new(guid: String, relation_type: RelationType) -> Self {
-        Self {
-            guid,
-            relation_type,
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct MetaProperty {}
 
 pub fn create_meta_from_file(path: &Path) -> Metafile {
@@ -191,7 +175,7 @@ pub fn create_meta_from_file_with_property<P>(path: &Path, property: P) -> Metaf
         size: path.metadata().unwrap().file_size(),
         created_at: path.metadata().unwrap().created().unwrap(),
         modified_at: path.metadata().unwrap().modified().unwrap(),
-        tags: HashSet::new(),
+        tags: HashMap::new(),
         relations: HashMap::new(),
         property,
     }
@@ -204,10 +188,16 @@ mod tests {
     #[test]
     fn test_create_meta_from_file() {
         let path = Path::new("./test_files/test.txt");
-        let meta = create_meta_from_file(path);
+        let mut meta = create_meta_from_file(path);
         assert_eq!(meta.name(), "test.txt");
         assert_eq!(meta.ext(), "txt");
         assert_eq!(meta.meta_type(), &MetaType::File);
+
+        let tag = Tag::new("test");
+        meta.add_tag(&tag);
+
+        assert_eq!(meta.tags().len(), 1);
+        assert_eq!(meta.get_tag(tag.uid()).unwrap().name(), "test");
 
         let path_out = format!("./test_files/{}@{}.pgmeta", meta.name(), meta.uid());
         fs::write(&path_out, meta.serialize_compressed()).unwrap();
