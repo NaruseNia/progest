@@ -1,3 +1,5 @@
+mod tag;
+
 use std::{
     collections::{HashMap, HashSet},
     ffi::OsStr,
@@ -11,6 +13,7 @@ use std::{
 use brotli::{CompressorReader, Decompressor};
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
+use tag::Tag;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum MetaType {
@@ -68,7 +71,7 @@ pub struct Metafile<P = MetaProperty> {
     modified_at: SystemTime,
 
     #[getset(get = "pub")]
-    tags: HashSet<String>,
+    tags: HashSet<Tag>,
 
     #[getset(get = "pub")]
     relations: HashMap<String, Relation>,
@@ -86,11 +89,11 @@ impl Metafile {
         self.relations.remove(&relation.guid);
     }
 
-    pub fn add_tag(&mut self, tag: String) {
+    pub fn add_tag(&mut self, tag: Tag) {
         self.tags.insert(tag);
     }
 
-    pub fn remove_tag(&mut self, tag: &String) {
+    pub fn remove_tag(&mut self, tag: &Tag) {
         self.tags.remove(tag);
     }
 
