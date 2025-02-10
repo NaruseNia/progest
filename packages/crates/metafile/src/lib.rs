@@ -1,6 +1,3 @@
-pub mod relation;
-pub mod tag;
-
 use std::{
     collections::HashMap, ffi::OsStr, fs, io::Read, os::windows::fs::MetadataExt, path::Path,
     time::SystemTime,
@@ -8,10 +5,8 @@ use std::{
 
 use brotli::{CompressorReader, Decompressor};
 use getset::Getters;
+use progest::metadata::{Relation, Tag};
 use serde::{Deserialize, Serialize};
-use tag::Tag;
-
-use crate::relation::*;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum MetaType {
