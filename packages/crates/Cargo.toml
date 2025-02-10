@@ -1,3 +1,9 @@
 [workspace]
 resolver = "2"
 members = ["metafile", "naming_convention", "project_core"]
+
+[workspace.dependencies]
+metafile = { path = "metafile" }
+naming_convention = { path = "naming_convention" }
+project_core = { path = "project_core" }
+

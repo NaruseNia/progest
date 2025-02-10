@@ -211,6 +211,14 @@ dependencies = [
 [[package]]
 name = "project_core"
 version = "0.1.0"
+dependencies = [
+ "brotli",
+ "getset",
+ "metafile",
+ "rmp-serde",
+ "serde",
+ "ulid",
+]
 
 [[package]]
 name = "quote"
