@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["metafile", "naming_convention", "project_core"]
+members = ["metafile", "naming_convention", "progest", "project_core"]
 
 [workspace.dependencies]
 metafile = { path = "metafile" }
